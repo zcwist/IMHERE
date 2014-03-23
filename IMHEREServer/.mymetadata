@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="IMHEREServer"
+  id="myeclipse.1395589953162"
+  context-root="/IMHEREServer"
+  j2ee-spec="5.0"
+  archive="IMHEREServer.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+
