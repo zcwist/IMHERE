@@ -3,10 +3,18 @@ package self.kiwi.model;
 import java.util.Date;
 
 public class Record {
+	private int id;
 	private Location location;
 	private String content;
 	private String tag;
 	private Date date;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	public Location getLocation() {
 		return location;
 	}
