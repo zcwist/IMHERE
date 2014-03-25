@@ -38,6 +38,8 @@ public class InsertRecord extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		
+		System.out.println(request.getHeader(getServletInfo()));
 
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
