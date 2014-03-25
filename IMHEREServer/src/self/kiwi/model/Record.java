@@ -9,6 +9,17 @@ public class Record {
 	private String tag;
 	private Date date;
 	
+	public Record(int id, Location location, String content, String tag,
+			Date date) {
+		super();
+		this.id = id;
+		this.location = location;
+		this.content = content;
+		this.tag = tag;
+		this.date = date;
+	}
+	
+	
 	public int getId() {
 		return id;
 	}
