@@ -2,15 +2,28 @@ package self.kiwi.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import self.kiwi.Main;
+import self.kiwi.dao.RecordDao;
+import self.kiwi.model.Location;
+import self.kiwi.model.Record;
+import self.kiwi.util.RecordToJson;
+
 @SuppressWarnings("serial")
 public class InsertRecord extends HttpServlet {
-
+	ApplicationContext context = null;
+	RecordDao recordDao = null;
+	
 	/**
 	 * Constructor of the object.
 	 */
@@ -39,21 +52,18 @@ public class InsertRecord extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		System.out.println(request.getHeader(getServletInfo()));
-
+		
+		Location loc = new Location(request.getParameter("latitude"),
+				request.getParameter("longitude"));
+		
+		System.out.println("Get a get");
+		
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
-		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
-		out.println("<HTML>");
-		out.println("  <HEAD><TITLE>A Servlet</TITLE></HEAD>");
-		out.println("  <BODY>");
-		out.print("    This is ");
-		out.print(this.getClass());
-		out.println(", using the GET method");
-		out.println("  </BODY>");
-		out.println("</HTML>");
+		out.println(printResponse(loc));
 		out.flush();
 		out.close();
+		
 	}
 
 	/**
@@ -64,24 +74,29 @@ public class InsertRecord extends HttpServlet {
 	 * @param request the request send by the client to the server
 	 * @param response the response send by the server to the client
 	 * @throws ServletException if an error occurred
-	 * @throws IOException if an error occurred
+	 * @throws IOException if an error occurred 
 	 */
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+			throws ServletException, IOException {		
+		Location loc = new Location(request.getParameter("latitude"),
+		request.getParameter("longitude"));
+				
+		Record rec = new Record(0, loc, request.getParameter("content"), "", new Date(System.currentTimeMillis()));
+		recordDao.insertRecord(rec);
+		
+		System.out.println("Get a post");
+		
 
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
-		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
-		out.println("<HTML>");
-		out.println("  <HEAD><TITLE>A Servlet</TITLE></HEAD>");
-		out.println("  <BODY>");
-		out.print("    This is ");
-		out.print(this.getClass());
-		out.println(", using the POST method");
-		out.println("  </BODY>");
-		out.println("</HTML>");
+		out.println(printResponse(loc));
 		out.flush();
 		out.close();
+	}
+	
+	private String printResponse(Location loc){
+		return RecordToJson.RecordListToJSON(recordDao.getRecordList(loc)).toString();
+
 	}
 
 	/**
@@ -91,6 +106,8 @@ public class InsertRecord extends HttpServlet {
 	 */
 	public void init() throws ServletException {
 		// Put your code here
+		context = new ClassPathXmlApplicationContext("applicationContext.xml");
+		recordDao = (RecordDao) context.getBean("recordDao");
 	}
 
 }

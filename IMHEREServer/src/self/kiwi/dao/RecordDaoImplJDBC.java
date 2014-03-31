@@ -1,6 +1,7 @@
 package self.kiwi.dao;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,29 +11,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import self.kiwi.model.Location;
 import self.kiwi.model.Record;
 
-public class RecordDaoImpl implements RecordDao {
-	
-	private DataSource dataSource;
-	
+public class RecordDaoImplJDBC implements RecordDao {
+	private final String driver = "com.mysql.jdbc.Driver";
+	private final String url = "jdbc:mysql://localhost:3306/amessagehere";
+	private final String userName = "root";
+	private final String password = "admin";
 
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-
-	@SuppressWarnings("deprecation")
 	public void insertRecord(Record record) {
 		// TODO Auto-generated method stub
-
 		String sql = "INSERT INTO MESSAGE (id, longitude, latitude, content, tag, date)"
 				+ "VALUES(?,?,?,?,?,?)";
 		Connection conn = null;
 		try{
-			conn = dataSource.getConnection();
+			conn = getConnection();
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, String.valueOf(getNum(conn)+1));
 			ps.setFloat(2, record.getLocation().getLongitude());
@@ -53,21 +47,6 @@ public class RecordDaoImpl implements RecordDao {
 		}
 		
 
-	}
-	
-	public int getNum(Connection conn){
-		String getNum = "SELECT COUNT(*) FROM MESSAGE";
-		PreparedStatement ps;
-		try {
-			ps = conn.prepareStatement(getNum);
-			ResultSet rs = ps.executeQuery();
-			rs.next();
-			return rs.getInt(1);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
 
 	}
 
@@ -78,7 +57,7 @@ public class RecordDaoImpl implements RecordDao {
 		List<Record> recordList = new ArrayList<Record>();
 		try{
 			
-			conn = dataSource.getConnection();
+			conn = getConnection();
 			PreparedStatement ps = conn.prepareStatement(sql);
 			
 			//Each Record, Location
@@ -86,7 +65,7 @@ public class RecordDaoImpl implements RecordDao {
 			Location loc = null;
 			
 			ResultSet rs = ps.executeQuery();
-			while (rs.next()){
+			if (rs.next()){
 				loc = new Location(rs.getString("longitude"), rs.getString("latitude"));
 				SimpleDateFormat strToDate = new SimpleDateFormat ("yyyy-m-dd hh:mm:ss");
 				Date date = new Date();
@@ -116,6 +95,47 @@ public class RecordDaoImpl implements RecordDao {
 		}
 		
 		return recordList;
+	}
+	
+	public int getNum(Connection conn){
+		String getNum = "SELECT COUNT(*) FROM MESSAGE";
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(getNum);
+			ResultSet rs = ps.executeQuery();
+			return rs.getInt(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+	
+	@SuppressWarnings("finally")
+	private Connection getConnection(){
+		Connection conn = null;
+		try {
+			Class.forName(driver).newInstance();
+			conn = DriverManager.getConnection(url, userName, password);
+			
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			return conn;
+		}
+		
+		
 	}
 
 }
